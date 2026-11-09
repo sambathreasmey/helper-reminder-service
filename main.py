@@ -6,6 +6,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 import httpx
 import uvicorn
+from pytz import timezone
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -78,6 +79,8 @@ async def schedule_reminder(data: ReminderRequest):
     """
     # Create a unique job ID based on user and time
     job_id = f"reminder_{data.chat_id}_{data.hour:02d}_{data.minute:02d}"
+
+    LOCAL_TZ = timezone('Asia/Phnom_Penh')
     
     # Add cron-based job to the scheduler
     scheduler.add_job(
@@ -85,6 +88,7 @@ async def schedule_reminder(data: ReminderRequest):
         'cron',
         hour=data.hour,
         minute=data.minute,
+        timezone=LOCAL_TZ,
         args=[data.chat_id, f"🔔 **Reminder:** {data.message}"],
         id=job_id,
         replace_existing=True
